@@ -1,0 +1,31 @@
+name: project-check
+on: push
+jobs:
+  linting-and-testing:
+    runs-on: ubuntu-latest
+    strategy:
+      martix:
+        node-version: [16.x]
+      steps:
+      - name: Cloning the repository
+        uses: actions/checkout@v2
+
+      - name: Installing node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Linting code
+        run: make lint
+
+      - name: Testing code
+        run: make test
+
+      - name: Reporting test-coverage to Codeclimate
+        uses: paambaati/codeclimate-action@v2.7.4
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_ID }}
+        with:
+          coverageCommand: make test-coverage
+          debug: true
+
