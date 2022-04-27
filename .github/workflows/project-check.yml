@@ -4,7 +4,7 @@ jobs:
   lint-test-build:
     runs-on: ubuntu-latest
     strategy:
-      martix:
+      matrix:
         node-version: [16.x]
     steps:
       - name: Cloning the repository
