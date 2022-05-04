@@ -4,6 +4,7 @@ const state = {
     form: {
       valid: null,
       processing: false,
+      message: '',
     },
   },
 };

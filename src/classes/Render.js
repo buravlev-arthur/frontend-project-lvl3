@@ -3,6 +3,7 @@ class Render {
     this.form = document.querySelector('.rss-form');
     this.urlInput = this.form.elements.url;
     this.formButton = this.form.querySelector('button');
+    this.formMessage = document.querySelector('.feedback');
   }
 
   urlInputSetBorder(valid) {
@@ -24,6 +25,17 @@ class Render {
 
   formButtonAble() {
     this.formButton.removeAttribute('disabled');
+  }
+
+  setFormMessage(text, valid) {
+    this.formMessage.textContent = text;
+    if (valid) {
+      this.formMessage.classList.remove('text-danger');
+      this.formMessage.classList.add('text-success');
+    } else {
+      this.formMessage.classList.remove('text-success');
+      this.formMessage.classList.add('text-danger');
+    }
   }
 }
 

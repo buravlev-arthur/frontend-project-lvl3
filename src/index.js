@@ -4,6 +4,12 @@ import * as yup from 'yup';
 import state from './state.js';
 import watchedState from './view.js';
 
+yup.setLocale({
+  string: {
+    url: 'urlFieldMessages.invalidUrl',
+  },
+});
+
 const form = document.querySelector('.rss-form');
 
 form.addEventListener('submit', (event) => {
@@ -16,24 +22,27 @@ form.addEventListener('submit', (event) => {
   if (isNewUrl) {
     const urlTempalte = yup.string().url().required();
 
-    urlTempalte.isValid(url)
-      .then((urlIsValid) => {
-        if (urlIsValid) {
-          watchedState.view.form.processing = true;
-          watchedState.view.form.valid = true;
-          return url;
-        }
+    urlTempalte.validate(url)
+      .then((link) => {
+        watchedState.view.form.processing = true;
+        watchedState.view.form.valid = true;
+        watchedState.view.form.message = 'urlFieldMessages.success';
 
-        watchedState.view.form.valid = false;
-        return null;
+        return link;
       })
-      .then((urlForRequest) => {
-        if (urlForRequest) {
-          state.feeds.push(urlForRequest);
-          watchedState.view.form.processing = false;
-        }
+      .catch((err) => {
+        const [errorTextPath] = err.errors;
+        watchedState.view.form.valid = false;
+        watchedState.view.form.message = errorTextPath;
+      })
+      .then((link) => {
+        state.feeds.push(link);
+        watchedState.view.form.processing = false;
       });
-  } else {
+  }
+
+  if (!isNewUrl) {
     watchedState.view.form.valid = false;
+    watchedState.view.form.message = 'urlFieldMessages.resourceIsExists';
   }
 });
