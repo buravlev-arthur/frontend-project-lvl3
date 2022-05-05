@@ -22,7 +22,18 @@ const watchedState = onChange(state, (path, value) => {
 
   if (path === 'view.form.processing' && !value) {
     render.formButtonAble();
-    render.urlInputClear();
+
+    if (state.view.form.valid) {
+      render.urlInputClear();
+    }
+  }
+
+  if (path === 'feeds') {
+    render.renderFeeds(state.feeds);
+  }
+
+  if (path === 'posts') {
+    render.renderPosts(state.posts);
   }
 });
 

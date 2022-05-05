@@ -1,5 +1,6 @@
 const state = {
   feeds: [],
+  posts: [],
   view: {
     form: {
       valid: null,
