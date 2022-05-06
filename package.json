@@ -2,7 +2,7 @@
   "name": "@hexlet/code",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "src/init.js",
   "description": "[![Actions Status](https://github.com/buravlev-arthur/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/buravlev-arthur/frontend-project-lvl3/actions)",
   "private": true,
   "scripts": {
