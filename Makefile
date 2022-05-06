@@ -4,7 +4,7 @@ install:
 lint:
 	npm run lint
 
-serve:
+start:
 	npm run serve
 
 build:
