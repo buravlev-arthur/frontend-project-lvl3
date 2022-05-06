@@ -4,7 +4,9 @@ const ru = {
       invalidUrl: 'Ссылка должна быть валидным URL',
       invalidResource: 'Ресурс не содержит валидный RSS',
       resourceIsExists: 'RSS уже существует',
-      networkError: 'Ошибка сети. Попробуйте повторить запрос',
+      shouldNotBeEmpty: 'Не должно быть пустым',
+      networkError: 'Ошибка сети',
+      processing: 'Просмотр',
       success: 'RSS успешно загружен',
     },
     buttons: {

@@ -16,7 +16,14 @@ import {
 } from './utils.js';
 
 const app = () => {
-  yup.setLocale({ string: { url: 'urlFieldMessages.invalidUrl' } });
+  yup.setLocale({
+    string: {
+      url: 'urlFieldMessages.invalidUrl',
+    },
+    mixed: {
+      required: 'urlFieldMessages.shouldNotBeEmpty',
+    },
+  });
 
   const form = document.querySelector('.rss-form');
   const modalWindow = document.querySelector('#modal');
@@ -34,6 +41,8 @@ const app = () => {
       urlTempalte.validate(url)
         .then(() => {
           watchedState.view.form.processing = true;
+          watchedState.view.form.valid = true;
+          watchedState.view.form.message = 'urlFieldMessages.processing';
           return getProxyUrl(url);
         })
         .then((proxyURL) => axios.get(proxyURL))
