@@ -3,7 +3,7 @@ import i18next from '../dict/index.js';
 class Render {
   constructor() {
     this.form = document.querySelector('.rss-form');
-    this.urlInput = this.form.elements.url;
+    this.urlInput = this.form.querySelector('#url-input');
     this.formButton = this.form.querySelector('button');
     this.formMessage = document.querySelector('.feedback');
     this.feedsCard = document.querySelector('.feeds > .card');
