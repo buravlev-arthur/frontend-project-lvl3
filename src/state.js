@@ -7,6 +7,7 @@ const state = {
       processing: false,
       message: '',
     },
+    showUpdatingErrorAlert: false,
   },
 };
 

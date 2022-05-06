@@ -35,6 +35,14 @@ const watchedState = onChange(state, (path, value) => {
   if (path === 'posts') {
     render.renderPosts(state.posts);
   }
+
+  if (path === 'view.showUpdatingErrorAlert' && value) {
+    render.showUpdatingErrorAlert();
+  }
+
+  if (path === 'view.showUpdatingErrorAlert' && !value) {
+    render.hideUpdatingErrorAlert();
+  }
 });
 
 export default watchedState;

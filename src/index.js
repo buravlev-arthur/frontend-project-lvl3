@@ -4,7 +4,14 @@ import axios from 'axios';
 import * as yup from 'yup';
 import state from './state.js';
 import watchedState from './view.js';
-import { parseXMLTree, resourceExists, getProxyUrl } from './utils.js';
+import {
+  parseXMLTree,
+  setFeedId,
+  setPostsIds,
+  resourceExists,
+  getProxyUrl,
+  getNewPosts,
+} from './utils.js';
 
 yup.setLocale({ string: { url: 'urlFieldMessages.invalidUrl' } });
 
@@ -30,7 +37,7 @@ form.addEventListener('submit', (event) => {
         const resourceContent = response.data.contents;
         const nextFeedId = state.feeds.length;
         const nextPostId = state.posts.length;
-        const parsedData = parseXMLTree(resourceContent, url, nextFeedId, nextPostId);
+        const parsedData = parseXMLTree(resourceContent, url);
 
         if (!parsedData) {
           watchedState.view.form.valid = false;
@@ -39,8 +46,11 @@ form.addEventListener('submit', (event) => {
         }
 
         const { feed, posts } = parsedData;
-        watchedState.feeds.push(feed);
-        watchedState.posts = [...watchedState.posts, ...posts];
+        const feedWithId = setFeedId(feed, nextFeedId);
+        const postsWithIds = setPostsIds(posts, nextPostId, nextFeedId);
+
+        watchedState.feeds.unshift(feedWithId);
+        watchedState.posts = [...postsWithIds, ...state.posts];
         watchedState.view.form.valid = true;
         watchedState.view.form.message = 'urlFieldMessages.success';
       })
@@ -66,3 +76,5 @@ form.addEventListener('submit', (event) => {
     watchedState.view.form.message = 'urlFieldMessages.resourceIsExists';
   }
 });
+
+setTimeout(getNewPosts, 5000);

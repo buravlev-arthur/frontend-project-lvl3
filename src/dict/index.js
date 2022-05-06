@@ -3,7 +3,7 @@ import ru from './langs/ru.js';
 
 i18next.init({
   lng: 'ru',
-  debug: true,
+  debug: false,
   resources: {
     ru,
   },

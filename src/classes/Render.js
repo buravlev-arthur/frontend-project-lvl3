@@ -8,6 +8,7 @@ class Render {
     this.feedsList = document.querySelector('.feeds ul');
     this.postsCard = document.querySelector('.posts > .card');
     this.postsList = document.querySelector('.posts ul');
+    this.updatingErrorAlert = document.querySelector('.updating-error-alert');
   }
 
   urlInputSetBorder(valid) {
@@ -82,6 +83,14 @@ class Render {
       li.append(a);
       this.postsList.append(li);
     });
+  }
+
+  showUpdatingErrorAlert() {
+    this.updatingErrorAlert.classList.remove('d-none');
+  }
+
+  hideUpdatingErrorAlert() {
+    this.updatingErrorAlert.classList.add('d-none');
   }
 }
 
