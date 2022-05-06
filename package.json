@@ -1,7 +1,6 @@
 {
   "name": "@hexlet/code",
   "version": "1.0.0",
-  "type": "module",
   "description": "[![Actions Status](https://github.com/buravlev-arthur/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/buravlev-arthur/frontend-project-lvl3/actions)",
   "private": true,
   "scripts": {
@@ -27,7 +26,6 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "html-webpack-plugin": "^5.5.0",
-    "jest": "^28.0.2",
     "postcss": "^8.4.12",
     "postcss-loader": "^6.2.1",
     "sass": "^1.51.0",
