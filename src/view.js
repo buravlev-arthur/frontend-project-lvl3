@@ -32,7 +32,7 @@ const watchedState = onChange(state, (path, value) => {
     render.renderFeeds(state.feeds);
   }
 
-  if (path === 'posts') {
+  if (/^posts/.test(path)) {
     render.renderPosts(state.posts);
   }
 
@@ -42,6 +42,10 @@ const watchedState = onChange(state, (path, value) => {
 
   if (path === 'view.showUpdatingErrorAlert' && !value) {
     render.hideUpdatingErrorAlert();
+  }
+
+  if (path === 'view.modalWindow') {
+    render.setModalWindow(value);
   }
 });
 

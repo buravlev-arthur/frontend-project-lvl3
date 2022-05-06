@@ -29,9 +29,13 @@ const parseXMLTree = (content, resourceLink) => {
     channelItems.forEach((item) => {
       const title = item.querySelector('title').textContent;
       const link = item.querySelector('link').textContent;
+      const description = item.querySelector('description').textContent;
+
       posts.push({
         title,
         link,
+        description,
+        visited: false,
       });
     });
 
@@ -69,6 +73,18 @@ const getProxyUrl = (url) => {
   return formattedUrl.href;
 };
 
+const setEventsForLinks = () => {
+  const links = document.querySelectorAll('.posts a');
+
+  links.forEach((link) => {
+    link.addEventListener('click', (event) => {
+      const postId = parseInt(event.target.dataset.id, 10);
+      const postIndex = _.findIndex(state.posts, (post) => post.id === postId);
+      watchedState.posts[postIndex].visited = true;
+    });
+  });
+};
+
 const getNewPosts = () => {
   state.feeds.forEach(({ id, link }) => {
     const existPosts = state.posts.filter(({ feedId }) => feedId === id);
@@ -82,6 +98,7 @@ const getNewPosts = () => {
         const nextPostId = state.posts.length;
         const newPostsWithIds = setPostsIds(newPosts, nextPostId, id);
         watchedState.posts = [...newPostsWithIds, ...state.posts];
+        setEventsForLinks();
         watchedState.view.showUpdatingErrorAlert = false;
       })
       .catch(() => {
@@ -99,4 +116,5 @@ export {
   resourceExists,
   getProxyUrl,
   getNewPosts,
+  setEventsForLinks,
 };

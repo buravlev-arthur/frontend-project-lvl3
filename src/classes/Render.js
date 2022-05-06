@@ -1,3 +1,5 @@
+import i18next from '../dict/index.js';
+
 class Render {
   constructor() {
     this.form = document.querySelector('.rss-form');
@@ -9,6 +11,9 @@ class Render {
     this.postsCard = document.querySelector('.posts > .card');
     this.postsList = document.querySelector('.posts ul');
     this.updatingErrorAlert = document.querySelector('.updating-error-alert');
+    this.modalWindowTitle = document.querySelector('#modal .modal-title');
+    this.modalWindowBody = document.querySelector('#modal .modal-body > p');
+    this.modalWindowLink = document.querySelector('#modal a.full-article');
   }
 
   urlInputSetBorder(valid) {
@@ -69,18 +74,33 @@ class Render {
     this.postsCard.classList.remove('d-none');
     this.postsList.innerHTML = '';
 
-    posts.forEach(({ id, title, link }) => {
+    posts.forEach(({
+      id,
+      title,
+      link,
+      visited,
+    }) => {
       const li = document.createElement('li');
       const a = document.createElement('a');
+      const button = document.createElement('button');
 
       li.classList.add('list-group-item', 'border-0');
-      a.classList.add('fw-bold');
+
+      const linkClass = visited ? 'fw-normal' : 'fw-bold';
+      a.classList.add(linkClass);
       a.target = '_blank';
       a.href = link;
       a.dataset.id = id;
       a.textContent = title;
 
+      button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'float-end');
+      button.textContent = i18next.t('buttons.review');
+      button.dataset.id = id;
+      button.dataset.bsToggle = 'modal';
+      button.dataset.bsTarget = '#modal';
+
       li.append(a);
+      li.append(button);
       this.postsList.append(li);
     });
   }
@@ -91,6 +111,12 @@ class Render {
 
   hideUpdatingErrorAlert() {
     this.updatingErrorAlert.classList.add('d-none');
+  }
+
+  setModalWindow({ title, description, link }) {
+    this.modalWindowTitle.textContent = title;
+    this.modalWindowBody.textContent = description;
+    this.modalWindowLink.href = link;
   }
 }
 

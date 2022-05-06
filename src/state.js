@@ -7,6 +7,11 @@ const state = {
       processing: false,
       message: '',
     },
+    modalWindow: {
+      title: '',
+      description: '',
+      link: '',
+    },
     showUpdatingErrorAlert: false,
   },
 };
