@@ -4,7 +4,6 @@
   "description": "[![Actions Status](https://github.com/buravlev-arthur/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/buravlev-arthur/frontend-project-lvl3/actions)",
   "private": true,
   "scripts": {
-    "test": "jest",
     "build": "webpack --mode=production",
     "serve": "webpack serve --open",
     "lint": "npx eslint .",
