@@ -89,10 +89,9 @@ const render = {
       const li = document.createElement('li');
       const a = document.createElement('a');
       const button = document.createElement('button');
-
       li.classList.add('list-group-item', 'border-0');
-
       const linkClass = visited ? 'fw-normal' : 'fw-bold';
+
       a.classList.add(linkClass);
       a.target = '_blank';
       a.href = link;
