@@ -41,8 +41,6 @@ export default () => {
       urlTempalte.validate(url)
         .then(() => {
           watchedState.view.form.processing = true;
-          watchedState.view.form.valid = true;
-          watchedState.view.form.message = 'urlFieldMessages.processing';
           return getProxyUrl(url);
         })
         .then((proxyURL) => axios.get(proxyURL))
