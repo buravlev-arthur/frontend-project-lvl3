@@ -14,10 +14,12 @@ const viewActions = (state, path, value) => {
 
   if (path === 'view.form.processing' && value) {
     render.formButtonDisable();
+    render.urlInputReadonly();
   }
 
   if (path === 'view.form.processing' && !value) {
     render.formButtonAble();
+    render.urlInputEditable();
 
     if (state.view.form.valid) {
       render.urlInputClear();

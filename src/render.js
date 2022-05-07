@@ -16,6 +16,16 @@ const render = {
     urlInput.focus();
   },
 
+  urlInputReadonly: () => {
+    const urlInput = document.querySelector('#url-input');
+    urlInput.setAttribute('readonly', 'readonly');
+  },
+
+  urlInputEditable: () => {
+    const urlInput = document.querySelector('#url-input');
+    urlInput.removeAttribute('readonly');
+  },
+
   formButtonDisable: () => {
     const formButton = document.querySelector('.rss-form button');
     formButton.setAttribute('disabled', 'disabled');
