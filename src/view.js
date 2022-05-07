@@ -18,7 +18,6 @@ const viewActions = (state, path, value) => {
   }
 
   if (path === 'view.form.processing' && !value) {
-    console.log('yes');
     render.urlInputEditable();
     render.formButtonAble();
 
