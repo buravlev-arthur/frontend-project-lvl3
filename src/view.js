@@ -1,9 +1,7 @@
-import onChange from 'on-change';
-import state from './state.js';
 import render from './render.js';
 import i18next from './dict/index.js';
 
-const watchedState = onChange(state, (path, value) => {
+const viewActions = (state, path, value) => {
   if (path === 'view.form.valid') {
     render.urlInputSetBorder(value);
   }
@@ -45,6 +43,6 @@ const watchedState = onChange(state, (path, value) => {
   if (path === 'view.modalWindow') {
     render.setModalWindow(value);
   }
-});
+};
 
-export default watchedState;
+export default viewActions;

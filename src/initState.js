@@ -1,4 +1,4 @@
-const state = {
+const initState = () => ({
   feeds: [],
   posts: [],
   view: {
@@ -14,6 +14,6 @@ const state = {
     },
     showUpdatingErrorAlert: false,
   },
-};
+});
 
-export default state;
+export default initState;

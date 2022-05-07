@@ -1,8 +1,3 @@
-import axios from 'axios';
-import _ from 'lodash';
-import state from './state.js';
-import watchedState from './view.js';
-
 const parseXMLTree = (content, resourceLink) => {
   const parser = new DOMParser();
   const tree = parser.parseFromString(content, 'application/xml');
@@ -73,48 +68,10 @@ const getProxyUrl = (url) => {
   return formattedUrl.href;
 };
 
-const setEventsForLinks = () => {
-  const links = document.querySelectorAll('.posts a');
-
-  links.forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const postId = parseInt(event.target.dataset.id, 10);
-      const postIndex = _.findIndex(state.posts, (post) => post.id === postId);
-      watchedState.posts[postIndex].visited = true;
-    });
-  });
-};
-
-const getNewPosts = () => {
-  state.feeds.forEach(({ id, link }) => {
-    const existPosts = state.posts.filter(({ feedId }) => feedId === id);
-    const proxyURL = getProxyUrl(link);
-
-    axios.get(proxyURL)
-      .then((response) => {
-        const responseContent = response.data.contents;
-        const { posts } = parseXMLTree(responseContent);
-        const newPosts = _.differenceBy(posts, existPosts, 'link');
-        const nextPostId = state.posts.length;
-        const newPostsWithIds = setPostsIds(newPosts, nextPostId, id);
-        watchedState.posts = [...newPostsWithIds, ...state.posts];
-        setEventsForLinks();
-        watchedState.view.showUpdatingErrorAlert = false;
-      })
-      .catch(() => {
-        watchedState.view.showUpdatingErrorAlert = true;
-      });
-  });
-
-  setTimeout(getNewPosts, 5000);
-};
-
 export {
   parseXMLTree,
   setFeedId,
   setPostsIds,
   resourceExists,
   getProxyUrl,
-  getNewPosts,
-  setEventsForLinks,
 };
