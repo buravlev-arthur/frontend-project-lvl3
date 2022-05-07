@@ -87,6 +87,7 @@ export default () => {
 
           if (!parsedData) {
             watchedState.view.form.valid = false;
+            watchedState.view.form.processing = false;
             watchedState.view.form.message = 'urlFieldMessages.invalidResource';
             return;
           }
@@ -96,6 +97,7 @@ export default () => {
           const postsWithIds = setPostsIds(posts, nextPostId, nextFeedId);
 
           watchedState.view.form.valid = true;
+          watchedState.view.form.processing = false;
           watchedState.view.form.message = 'urlFieldMessages.success';
           watchedState.feeds.unshift(feedWithId);
           watchedState.posts = [...postsWithIds, ...state.posts];
@@ -103,6 +105,7 @@ export default () => {
         })
         .catch((err) => {
           watchedState.view.form.valid = false;
+          watchedState.view.form.processing = false;
 
           if (err.name === 'ValidationError') {
             const [errorTextPath] = err.errors;
@@ -112,9 +115,6 @@ export default () => {
           if (err.name === 'AxiosError') {
             watchedState.view.form.message = 'urlFieldMessages.networkError';
           }
-        })
-        .finally(() => {
-          watchedState.view.form.processing = false;
         });
     }
 

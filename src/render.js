@@ -18,7 +18,7 @@ const render = {
 
   urlInputReadonly: () => {
     const urlInput = document.querySelector('#url-input');
-    urlInput.setAttribute('readonly', 'readonly');
+    urlInput.setAttribute('readonly', 'true');
   },
 
   urlInputEditable: () => {
