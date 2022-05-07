@@ -1,9 +1,7 @@
 import onChange from 'on-change';
 import state from './state.js';
-import Render from './classes/Render.js';
+import render from './render.js';
 import i18next from './dict/index.js';
-
-const render = new Render();
 
 const watchedState = onChange(state, (path, value) => {
   if (path === 'view.form.valid') {
