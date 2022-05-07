@@ -56,6 +56,9 @@ export default () => {
             return;
           }
 
+          watchedState.view.form.valid = true;
+          watchedState.view.form.message = 'urlFieldMessages.success';
+
           const { feed, posts } = parsedData;
           const feedWithId = setFeedId(feed, nextFeedId);
           const postsWithIds = setPostsIds(posts, nextPostId, nextFeedId);
@@ -63,8 +66,6 @@ export default () => {
           watchedState.feeds.unshift(feedWithId);
           watchedState.posts = [...postsWithIds, ...state.posts];
           setEventsForLinks();
-          watchedState.view.form.valid = true;
-          watchedState.view.form.message = 'urlFieldMessages.success';
         })
         .catch((err) => {
           watchedState.view.form.valid = false;
