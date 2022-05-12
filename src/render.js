@@ -1,5 +1,3 @@
-import i18next from './dict/index.js';
-
 const render = {
   urlInputSetBorder: (valid) => {
     const urlInput = document.querySelector('#url-input');
@@ -73,7 +71,7 @@ const render = {
     });
   },
 
-  renderPosts(posts) {
+  renderPosts(posts, buttonText) {
     const postsCard = document.querySelector('.posts > .card');
     const postsList = document.querySelector('.posts ul');
 
@@ -99,7 +97,7 @@ const render = {
       a.textContent = title;
 
       button.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'float-end');
-      button.textContent = i18next.t('buttons.review');
+      button.textContent = buttonText;
       button.dataset.id = id;
       button.dataset.bsToggle = 'modal';
       button.dataset.bsTarget = '#modal';
@@ -108,6 +106,13 @@ const render = {
       li.append(button);
       postsList.append(li);
     });
+  },
+
+  setLinkVisited(index) {
+    const links = document.querySelectorAll('.posts a');
+    const clickedLink = links[index];
+    clickedLink.classList.add('fw-normal');
+    clickedLink.classList.remove('fw-bold');
   },
 
   showUpdatingErrorAlert() {

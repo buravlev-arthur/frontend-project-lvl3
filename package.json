@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "main": "src/init.js",
-  "description": "[![Actions Status](https://github.com/buravlev-arthur/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/buravlev-arthur/frontend-project-lvl3/actions)",
+  "description": "This web application form personaled rss feed on its page by your adding rss-links through text form",
   "private": true,
   "scripts": {
     "build": "webpack --mode=production",

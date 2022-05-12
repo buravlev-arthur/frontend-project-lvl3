@@ -40,38 +40,4 @@ const parseXMLTree = (content, resourceLink) => {
   }
 };
 
-const setFeedId = (feed, id) => ({ ...feed, id });
-
-const setPostsIds = (posts, initId, feedId) => {
-  const result = posts.map((post, index) => ({ ...post, feedId, id: initId + index }));
-  return result;
-};
-
-const resourceExists = (url, feeds) => {
-  const alreadyExists = feeds.filter((feed) => feed.link === url);
-
-  if (alreadyExists.length > 0) {
-    return true;
-  }
-
-  return false;
-};
-
-const getProxyUrl = (url) => {
-  const protocol = 'https';
-  const hostname = 'allorigins.hexlet.app';
-  const path = '/get';
-  const query = `disableCache=true&url=${encodeURIComponent(url)}`;
-
-  const formattedUrl = new URL(`${protocol}://${hostname}${path}?${query}`);
-
-  return formattedUrl.href;
-};
-
-export {
-  parseXMLTree,
-  setFeedId,
-  setPostsIds,
-  resourceExists,
-  getProxyUrl,
-};
+export default parseXMLTree;

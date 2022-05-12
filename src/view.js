@@ -1,7 +1,6 @@
 import render from './render.js';
-import i18next from './dict/index.js';
 
-const viewActions = (state, path, value) => {
+const viewActions = (state, i18next, path, value) => {
   if (path === 'view.form.valid') {
     render.urlInputSetBorder(value);
   }
@@ -30,8 +29,14 @@ const viewActions = (state, path, value) => {
     render.renderFeeds(state.feeds);
   }
 
-  if (/^posts/.test(path)) {
-    render.renderPosts(state.posts);
+  if (/^posts$/.test(path)) {
+    const buttonText = i18next.t('buttons.review');
+    render.renderPosts(state.posts, buttonText);
+  }
+
+  if (/^posts\.\d+\.visited/.test(path)) {
+    const postIndex = Number(path.match(/\d+/));
+    render.setLinkVisited(postIndex);
   }
 
   if (path === 'view.showUpdatingErrorAlert' && value) {

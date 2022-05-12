@@ -4,19 +4,37 @@ import onChange from 'on-change';
 import axios from 'axios';
 import * as yup from 'yup';
 import _ from 'lodash';
-import initState from './initState.js';
+import i18next from 'i18next';
+import ru from './dicts/ru.js';
 import viewActions from './view.js';
-import {
-  parseXMLTree,
-  setFeedId,
-  setPostsIds,
-  resourceExists,
-  getProxyUrl,
-} from './utils.js';
+import parseXMLTree from './parser.js';
 
 export default () => {
-  const state = initState();
-  const watchedState = onChange(state, (path, value) => viewActions(state, path, value));
+  const state = {
+    feeds: [],
+    posts: [],
+    view: {
+      form: {
+        valid: null,
+        processing: false,
+        message: '',
+      },
+      modalWindow: {
+        title: '',
+        description: '',
+        link: '',
+      },
+      showUpdatingErrorAlert: false,
+    },
+  };
+
+  i18next.init({
+    lng: 'ru',
+    debug: false,
+    resources: { ru },
+  });
+
+  const watchedState = onChange(state, (path, value) => viewActions(state, i18next, path, value));
   const form = document.querySelector('.rss-form');
   const modalWindow = document.querySelector('#modal');
 
@@ -26,32 +44,45 @@ export default () => {
     },
     mixed: {
       required: 'urlFieldMessages.shouldNotBeEmpty',
+      notOneOf: 'urlFieldMessages.resourceIsExists',
     },
   });
 
+  const getProxyUrl = (url) => {
+    const protocol = 'https';
+    const hostname = 'allorigins.hexlet.app';
+    const path = '/get';
+    const query = `disableCache=true&url=${encodeURIComponent(url)}`;
+
+    const formattedUrl = new URL(`${protocol}://${hostname}${path}?${query}`);
+
+    return formattedUrl.href;
+  };
+
   const setEventsForLinks = () => {
-    const links = document.querySelectorAll('.posts a');
-    links.forEach((link) => {
-      link.addEventListener('click', (event) => {
-        const postId = parseInt(event.target.dataset.id, 10);
-        const postIndex = _.findIndex(state.posts, (post) => post.id === postId);
-        watchedState.posts[postIndex].visited = true;
+    watchedState.posts.forEach((post, index) => {
+      const link = document.querySelector(`.posts a[data-id="${post.id}"]`);
+      link.addEventListener('click', () => {
+        watchedState.posts[index].visited = true;
       });
     });
   };
 
   const updatePosts = () => {
-    state.feeds.forEach(({ id, link }) => {
-      const existPosts = state.posts.filter(({ feedId }) => feedId === id);
+    watchedState.feeds.forEach(({ id, link }) => {
+      const existPosts = watchedState.posts.filter(({ feedId }) => feedId === id);
       const proxyURL = getProxyUrl(link);
       axios.get(proxyURL)
         .then((response) => {
           const responseContent = response.data.contents;
           const parsedContent = parseXMLTree(responseContent);
           const newPosts = _.differenceBy(parsedContent.posts, existPosts, 'link');
-          const nextPostId = state.posts.length;
-          const newPostsWithIds = setPostsIds(newPosts, nextPostId, id);
-          watchedState.posts = [...newPostsWithIds, ...state.posts];
+          const newPostsWithIds = newPosts.map((post) => ({
+            id: _.uniqueId(),
+            feedId: id,
+            ...post,
+          }));
+          watchedState.posts = [...newPostsWithIds, ...watchedState.posts];
           setEventsForLinks();
           watchedState.view.showUpdatingErrorAlert = false;
         })
@@ -63,71 +94,66 @@ export default () => {
     setTimeout(updatePosts, 5000);
   };
 
+  const loadRss = (rssFeedURL) => {
+    watchedState.view.form.processing = true;
+    watchedState.view.form.valid = true;
+    watchedState.view.form.message = 'urlFieldMessages.loading';
+    const proxyURL = getProxyUrl(rssFeedURL);
+    return axios.get(proxyURL);
+  };
+
   form.addEventListener('submit', (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.target);
     const url = formData.get('url');
-    const isNewUrl = !resourceExists(url, state.feeds);
+    const existLinks = watchedState.feeds.map((feed) => feed.link);
+    const urlTempalte = yup.string().url().required().notOneOf(existLinks);
 
-    if (isNewUrl) {
-      const urlTempalte = yup.string().url().required();
+    urlTempalte.validate(url)
+      .then((rssFeedURL) => loadRss(rssFeedURL))
+      .then((response) => {
+        const resourceContent = response.data.contents;
+        const parsedData = parseXMLTree(resourceContent, url);
 
-      urlTempalte.validate(url)
-        .then(() => {
-          watchedState.view.form.processing = true;
-          return getProxyUrl(url);
-        })
-        .then((proxyURL) => axios.get(proxyURL))
-        .then((response) => {
-          const resourceContent = response.data.contents;
-          const nextFeedId = state.feeds.length;
-          const nextPostId = state.posts.length;
-          const parsedData = parseXMLTree(resourceContent, url);
-
-          if (!parsedData) {
-            watchedState.view.form.valid = false;
-            watchedState.view.form.processing = false;
-            watchedState.view.form.message = 'urlFieldMessages.invalidResource';
-            return;
-          }
-
-          const { feed, posts } = parsedData;
-          const feedWithId = setFeedId(feed, nextFeedId);
-          const postsWithIds = setPostsIds(posts, nextPostId, nextFeedId);
-
-          watchedState.view.form.valid = true;
-          watchedState.view.form.processing = false;
-          watchedState.view.form.message = 'urlFieldMessages.success';
-          watchedState.feeds.unshift(feedWithId);
-          watchedState.posts = [...postsWithIds, ...state.posts];
-          setEventsForLinks();
-        })
-        .catch((err) => {
+        if (!parsedData) {
           watchedState.view.form.valid = false;
           watchedState.view.form.processing = false;
+          watchedState.view.form.message = 'urlFieldMessages.invalidResource';
+          return;
+        }
 
-          if (err.name === 'ValidationError') {
-            const [errorTextPath] = err.errors;
-            watchedState.view.form.message = errorTextPath;
-          }
+        const { feed, posts } = parsedData;
+        const feedId = _.uniqueId();
+        const feedWithId = { id: feedId, ...feed };
+        const postsWithId = posts.map((post) => ({ id: _.uniqueId(), feedId, ...post }));
 
-          if (err.name === 'AxiosError') {
-            watchedState.view.form.message = 'urlFieldMessages.networkError';
-          }
-        });
-    }
+        watchedState.view.form.valid = true;
+        watchedState.view.form.processing = false;
+        watchedState.view.form.message = 'urlFieldMessages.success';
+        watchedState.feeds.unshift(feedWithId);
+        watchedState.posts = [...postsWithId, ...watchedState.posts];
+        setEventsForLinks();
+      })
+      .catch((err) => {
+        watchedState.view.form.valid = false;
+        watchedState.view.form.processing = false;
 
-    if (!isNewUrl) {
-      watchedState.view.form.valid = false;
-      watchedState.view.form.message = 'urlFieldMessages.resourceIsExists';
-    }
+        if (err.name === 'ValidationError') {
+          const [errorTextPath] = err.errors;
+          watchedState.view.form.message = errorTextPath;
+        }
+
+        if (err.name === 'AxiosError') {
+          watchedState.view.form.message = 'urlFieldMessages.networkError';
+        }
+      });
   });
 
   modalWindow.addEventListener('show.bs.modal', (event) => {
-    const postId = parseInt(event.relatedTarget.dataset.id, 10);
-    const [{ title, description, link }] = state.posts.filter(({ id }) => id === postId);
-    const postIndex = _.findIndex(state.posts, (post) => post.id === postId);
+    const postId = event.relatedTarget.dataset.id;
+    const [{ title, description, link }] = watchedState.posts.filter(({ id }) => id === postId);
+    const postIndex = watchedState.posts.findIndex(({ id }) => (id === postId ? 1 : 0));
     watchedState.posts[postIndex].visited = true;
     watchedState.view.modalWindow = { title, description, link };
   });
