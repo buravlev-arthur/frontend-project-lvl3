@@ -1,12 +1,13 @@
+import onChange from 'on-change';
 import render from './render.js';
 
-const viewActions = (state, i18next, path, value) => {
+const watch = (state, translate) => onChange(state, (path, value) => {
   if (path === 'view.form.valid') {
     render.urlInputSetBorder(value);
   }
 
   if (path === 'view.form.message') {
-    const text = i18next.t(value);
+    const text = translate(value);
     const { view: { form: { valid } } } = state;
     render.setFormMessage(text, valid);
   }
@@ -30,7 +31,7 @@ const viewActions = (state, i18next, path, value) => {
   }
 
   if (/^posts$/.test(path)) {
-    const buttonText = i18next.t('buttons.review');
+    const buttonText = translate('buttons.review');
     render.renderPosts(state.posts, buttonText);
   }
 
@@ -50,6 +51,6 @@ const viewActions = (state, i18next, path, value) => {
   if (path === 'view.modalWindow') {
     render.setModalWindow(value);
   }
-};
+});
 
-export default viewActions;
+export default watch;
