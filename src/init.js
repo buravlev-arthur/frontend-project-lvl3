@@ -65,30 +65,16 @@ export default () => {
       };
 
       const updatePosts = () => {
-        const feedsCount = watchedState.feeds.length;
-
-        if (feedsCount === 0) {
-          setTimeout(updatePosts, 5000);
-          return;
-        }
-
-        let updatedFeeds = 0;
-
-        const addUpdatedFeed = () => {
-          updatedFeeds += 1;
-          if (updatedFeeds === feedsCount) {
-            setTimeout(updatePosts, 5000);
-          }
-        };
-
-        watchedState.feeds.forEach(({ id, link }) => {
-          const existPosts = watchedState.posts.filter(({ feedId }) => feedId === id);
-          const proxyURL = getProxyUrl(link);
-
-          axios.get(proxyURL)
-            .then((response) => {
+        const promises = watchedState.feeds.map(({ link }) => axios.get(getProxyUrl(link)));
+        const promise = Promise.all(promises);
+        promise
+          .then((responses) => {
+            responses.forEach((response) => {
+              const { data: { status: { url } } } = response;
+              const [{ id }] = watchedState.feeds.filter((feed) => feed.link === url);
+              const existPosts = watchedState.posts.filter(({ feedId }) => feedId === id);
               const responseContent = response.data.contents;
-              const parsedContent = parseXMLTree(responseContent);
+              const parsedContent = parseXMLTree(responseContent, url);
               const newPosts = _.differenceBy(parsedContent.posts, existPosts, 'link');
               const newPostsWithIds = newPosts.map((post) => ({
                 id: _.uniqueId(),
@@ -96,16 +82,17 @@ export default () => {
                 ...post,
               }));
               watchedState.posts = [...newPostsWithIds, ...watchedState.posts];
-              setEventsForLinks();
-              watchedState.view.showUpdatingErrorAlert = false;
-            })
-            .catch(() => {
-              watchedState.view.showUpdatingErrorAlert = true;
-            })
-            .finally(() => {
-              addUpdatedFeed();
             });
-        });
+
+            setEventsForLinks();
+            watchedState.view.showUpdatingErrorAlert = false;
+          })
+          .catch(() => {
+            watchedState.view.showUpdatingErrorAlert = true;
+          })
+          .finally(() => {
+            setTimeout(updatePosts, 5000);
+          });
       };
 
       const loadRss = (rssFeedURL) => {
