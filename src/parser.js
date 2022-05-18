@@ -1,10 +1,12 @@
 const parseXMLTree = (content, resourceLink) => {
   const parser = new DOMParser();
+  const error = new Error();
+  error.name = 'ParserError';
   const tree = parser.parseFromString(content, 'application/xml');
   const errorNode = tree.querySelector('parsererror');
 
   if (errorNode) {
-    return null;
+    throw error;
   }
 
   const feed = {
@@ -30,13 +32,12 @@ const parseXMLTree = (content, resourceLink) => {
         title,
         link,
         description,
-        visited: false,
       });
     });
 
     return { feed, posts };
   } catch {
-    return null;
+    throw error;
   }
 };
 

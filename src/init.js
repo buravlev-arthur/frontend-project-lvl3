@@ -18,12 +18,9 @@ export default () => {
         processing: false,
         message: '',
       },
-      modalWindow: {
-        title: '',
-        description: '',
-        link: '',
-      },
+      modalWindowPostId: null,
       showUpdatingErrorAlert: false,
+      postsLinks: [],
     },
   };
 
@@ -48,18 +45,18 @@ export default () => {
         const protocol = 'https';
         const hostname = 'allorigins.hexlet.app';
         const path = '/get';
-        const query = `disableCache=true&url=${encodeURIComponent(url)}`;
+        const proxyURLData = new URL(`${path}`, `${protocol}://${hostname}`);
+        proxyURLData.searchParams.set('disableCache', 'true');
+        proxyURLData.searchParams.set('url', url);
 
-        const formattedUrl = new URL(`${protocol}://${hostname}${path}?${query}`);
-
-        return formattedUrl.href;
+        return proxyURLData.href;
       };
 
       const setEventsForLinks = () => {
-        watchedState.posts.forEach((post, index) => {
-          const link = document.querySelector(`.posts a[data-id="${post.id}"]`);
-          link.addEventListener('click', () => {
-            watchedState.posts[index].visited = true;
+        watchedState.view.postsLinks.forEach((link, index) => {
+          const postLink = document.querySelector(`.posts a[data-id="${link.id}"]`);
+          postLink.addEventListener('click', () => {
+            watchedState.view.postsLinks[index].visited = true;
           });
         });
       };
@@ -81,6 +78,12 @@ export default () => {
                 feedId: id,
                 ...post,
               }));
+              const newPostsLinks = newPostsWithIds.map((post) => ({
+                id: post.id,
+                visited: false,
+              }));
+
+              watchedState.view.postsLinks = [...newPostsLinks, ...watchedState.view.postsLinks];
               watchedState.posts = [...newPostsWithIds, ...watchedState.posts];
             });
 
@@ -116,23 +119,17 @@ export default () => {
           .then((response) => {
             const resourceContent = response.data.contents;
             const parsedData = parseXMLTree(resourceContent, url);
-
-            if (!parsedData) {
-              watchedState.view.form.valid = false;
-              watchedState.view.form.processing = false;
-              watchedState.view.form.message = 'urlFieldMessages.invalidResource';
-              return;
-            }
-
             const { feed, posts } = parsedData;
             const feedId = _.uniqueId();
             const feedWithId = { id: feedId, ...feed };
             const postsWithId = posts.map((post) => ({ id: _.uniqueId(), feedId, ...post }));
+            const postsLinks = postsWithId.map(({ id }) => ({ id, visited: false }));
 
             watchedState.view.form.valid = true;
             watchedState.view.form.processing = false;
             watchedState.view.form.message = 'urlFieldMessages.success';
             watchedState.feeds.unshift(feedWithId);
+            watchedState.view.postsLinks = [...postsLinks, ...watchedState.view.postsLinks];
             watchedState.posts = [...postsWithId, ...watchedState.posts];
             setEventsForLinks();
           })
@@ -148,15 +145,17 @@ export default () => {
             if (err.name === 'AxiosError') {
               watchedState.view.form.message = 'urlFieldMessages.networkError';
             }
+
+            if (err.name === 'ParserError') {
+              watchedState.view.form.message = 'urlFieldMessages.invalidResource';
+            }
           });
       });
 
       modalWindow.addEventListener('show.bs.modal', (event) => {
         const postId = event.relatedTarget.dataset.id;
-        const [{ title, description, link }] = watchedState.posts.filter(({ id }) => id === postId);
-        const postIndex = watchedState.posts.findIndex(({ id }) => (id === postId ? 1 : 0));
-        watchedState.posts[postIndex].visited = true;
-        watchedState.view.modalWindow = { title, description, link };
+        watchedState.view.modalWindowPostId = postId;
+        watchedState.view.postsLinks.find((post) => post.id === postId).visited = true;
       });
 
       setTimeout(updatePosts, 5000);

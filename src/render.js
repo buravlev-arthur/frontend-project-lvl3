@@ -71,23 +71,19 @@ const render = {
     });
   },
 
-  renderPosts(posts, buttonText) {
+  renderPosts(posts, links, buttonText) {
     const postsCard = document.querySelector('.posts > .card');
     const postsList = document.querySelector('.posts ul');
 
     postsCard.classList.remove('d-none');
     postsList.innerHTML = '';
 
-    posts.forEach(({
-      id,
-      title,
-      link,
-      visited,
-    }) => {
+    posts.forEach(({ id, title, link }) => {
       const li = document.createElement('li');
       const a = document.createElement('a');
       const button = document.createElement('button');
       li.classList.add('list-group-item', 'border-0');
+      const { visited } = links.find((postLink) => postLink.id === id);
       const linkClass = visited ? 'fw-normal' : 'fw-bold';
 
       a.classList.add(linkClass);
@@ -108,11 +104,10 @@ const render = {
     });
   },
 
-  setLinkVisited(index) {
-    const links = document.querySelectorAll('.posts a');
-    const clickedLink = links[index];
-    clickedLink.classList.add('fw-normal');
-    clickedLink.classList.remove('fw-bold');
+  setLinkVisited(postId) {
+    const link = document.querySelector(`.posts a[data-id="${postId}"]`);
+    link.classList.add('fw-normal');
+    link.classList.remove('fw-bold');
   },
 
   showUpdatingErrorAlert() {

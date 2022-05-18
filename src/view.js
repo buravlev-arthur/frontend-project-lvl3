@@ -30,14 +30,15 @@ const watch = (state, translate) => onChange(state, (path, value) => {
     render.renderFeeds(state.feeds);
   }
 
-  if (/^posts$/.test(path)) {
+  if (path === 'posts') {
     const buttonText = translate('buttons.review');
-    render.renderPosts(state.posts, buttonText);
+    render.renderPosts(state.posts, state.view.postsLinks, buttonText);
   }
 
-  if (/^posts\.\d+\.visited/.test(path)) {
-    const postIndex = Number(path.match(/\d+/));
-    render.setLinkVisited(postIndex);
+  if (/^view.postsLinks\.\d+\.visited/.test(path)) {
+    const index = Number(path.match(/\d+/));
+    const postId = state.view.postsLinks[index].id;
+    render.setLinkVisited(postId);
   }
 
   if (path === 'view.showUpdatingErrorAlert' && value) {
@@ -48,8 +49,9 @@ const watch = (state, translate) => onChange(state, (path, value) => {
     render.hideUpdatingErrorAlert();
   }
 
-  if (path === 'view.modalWindow') {
-    render.setModalWindow(value);
+  if (path === 'view.modalWindowPostId') {
+    const [{ title, description, link }] = state.posts.filter((post) => post.id === value);
+    render.setModalWindow({ title, description, link });
   }
 });
 
