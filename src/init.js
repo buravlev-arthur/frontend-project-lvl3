@@ -142,7 +142,7 @@ export default () => {
             watchedState.view.form.valid = false;
             watchedState.view.form.processing = false;
 
-            if (err instanceof yup.ValidationError) {
+            if (err.name === 'ValidationError') {
               const [errorTextPath] = err.errors;
               watchedState.view.form.message = errorTextPath;
             }
