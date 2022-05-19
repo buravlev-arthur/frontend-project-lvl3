@@ -5,7 +5,8 @@ const parseXMLTree = (content, resourceLink) => {
 
   if (errorNode) {
     const error = new Error();
-    error.isParserError = true;
+    // error.isParserError = true;
+    error.name = 'ParserError';
     throw error;
   }
 
@@ -38,7 +39,8 @@ const parseXMLTree = (content, resourceLink) => {
     return { feed, posts };
   } catch {
     const error = new Error();
-    error.isParserError = true;
+    // error.isParserError = true;
+    error.name = 'ParserError';
     throw error;
   }
 };

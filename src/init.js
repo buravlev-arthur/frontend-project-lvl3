@@ -34,10 +34,10 @@ export default () => {
     },
   });
 
-  axios.interceptors.response.use((res) => res, (err) => {
+  /* axios.interceptors.response.use((res) => res, (err) => {
     const modifiedError = { isAxiosError: true, ...err };
     return Promise.reject(modifiedError);
-  });
+  }); */
 
   i18next
     .init({ lng: 'ru', debug: false, resources })
@@ -147,11 +147,11 @@ export default () => {
               watchedState.view.form.message = errorTextPath;
             }
 
-            if (err.isAxiosError) {
+            if (err.name === 'AxiosError') {
               watchedState.view.form.message = 'urlFieldMessages.networkError';
             }
 
-            if (err.isParserError) {
+            if (err.name === 'ParserError') {
               watchedState.view.form.message = 'urlFieldMessages.invalidResource';
             }
           });
