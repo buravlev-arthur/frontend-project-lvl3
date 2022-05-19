@@ -132,7 +132,6 @@ export default () => {
             setEventsForLinks();
           })
           .catch((err) => {
-            console.log('lalala: ', JSON.stringify(err));
             watchedState.view.form.valid = false;
             watchedState.view.form.processing = false;
 
