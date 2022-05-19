@@ -32,13 +32,12 @@ const watch = (state, translate) => onChange(state, (path, value) => {
 
   if (path === 'posts') {
     const buttonText = translate('buttons.review');
-    render.renderPosts(state.posts, state.view.postsLinks, buttonText);
+    render.renderPosts(state.posts, state.view.visitedLinks, buttonText);
   }
 
-  if (/^view.postsLinks\.\d+\.visited/.test(path)) {
-    const index = Number(path.match(/\d+/));
-    const postId = state.view.postsLinks[index].id;
-    render.setLinkVisited(postId);
+  if (path === 'view.visitedLinks') {
+    const visitedLinkId = value[value.length - 1];
+    render.setLinkVisited(visitedLinkId);
   }
 
   if (path === 'view.showUpdatingErrorAlert' && value) {

@@ -1,11 +1,11 @@
 const parseXMLTree = (content, resourceLink) => {
   const parser = new DOMParser();
-  const error = new Error();
-  error.name = 'ParserError';
   const tree = parser.parseFromString(content, 'application/xml');
   const errorNode = tree.querySelector('parsererror');
 
   if (errorNode) {
+    const error = new Error();
+    error.name = 'ParserError';
     throw error;
   }
 
@@ -37,6 +37,8 @@ const parseXMLTree = (content, resourceLink) => {
 
     return { feed, posts };
   } catch {
+    const error = new Error();
+    error.name = 'ParserError';
     throw error;
   }
 };

@@ -4,7 +4,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import _ from 'lodash';
 import i18next from 'i18next';
-import ru from './dicts/ru.js';
+import resources from './dicts/index.js';
 import watch from './view.js';
 import parseXMLTree from './parser.js';
 
@@ -20,7 +20,7 @@ export default () => {
       },
       modalWindowPostId: null,
       showUpdatingErrorAlert: false,
-      postsLinks: [],
+      visitedLinks: [],
     },
   };
 
@@ -35,7 +35,7 @@ export default () => {
   });
 
   i18next
-    .init({ lng: 'ru', debug: false, resources: { ru } })
+    .init({ lng: 'ru', debug: false, resources })
     .then((translate) => {
       const watchedState = watch(state, translate);
       const form = document.querySelector('.rss-form');
@@ -45,18 +45,25 @@ export default () => {
         const protocol = 'https';
         const hostname = 'allorigins.hexlet.app';
         const path = '/get';
-        const proxyURLData = new URL(`${path}`, `${protocol}://${hostname}`);
+        const proxyURLData = new URL(path, `${protocol}://${hostname}`);
         proxyURLData.searchParams.set('disableCache', 'true');
         proxyURLData.searchParams.set('url', url);
 
         return proxyURLData.href;
       };
 
+      const makeLinkVisited = (id) => {
+        const isAlreadyVisited = watchedState.view.visitedLinks.includes(id);
+        if (!isAlreadyVisited) {
+          watchedState.view.visitedLinks.push(id);
+        }
+      };
+
       const setEventsForLinks = () => {
-        watchedState.view.postsLinks.forEach((link, index) => {
-          const postLink = document.querySelector(`.posts a[data-id="${link.id}"]`);
+        watchedState.posts.forEach(({ id }) => {
+          const postLink = document.querySelector(`.posts a[data-id="${id}"]`);
           postLink.addEventListener('click', () => {
-            watchedState.view.postsLinks[index].visited = true;
+            makeLinkVisited(id);
           });
         });
       };
@@ -78,12 +85,7 @@ export default () => {
                 feedId: id,
                 ...post,
               }));
-              const newPostsLinks = newPostsWithIds.map((post) => ({
-                id: post.id,
-                visited: false,
-              }));
 
-              watchedState.view.postsLinks = [...newPostsLinks, ...watchedState.view.postsLinks];
               watchedState.posts = [...newPostsWithIds, ...watchedState.posts];
             });
 
@@ -123,13 +125,11 @@ export default () => {
             const feedId = _.uniqueId();
             const feedWithId = { id: feedId, ...feed };
             const postsWithId = posts.map((post) => ({ id: _.uniqueId(), feedId, ...post }));
-            const postsLinks = postsWithId.map(({ id }) => ({ id, visited: false }));
 
             watchedState.view.form.valid = true;
             watchedState.view.form.processing = false;
             watchedState.view.form.message = 'urlFieldMessages.success';
             watchedState.feeds.unshift(feedWithId);
-            watchedState.view.postsLinks = [...postsLinks, ...watchedState.view.postsLinks];
             watchedState.posts = [...postsWithId, ...watchedState.posts];
             setEventsForLinks();
           })
@@ -155,7 +155,7 @@ export default () => {
       modalWindow.addEventListener('show.bs.modal', (event) => {
         const postId = event.relatedTarget.dataset.id;
         watchedState.view.modalWindowPostId = postId;
-        watchedState.view.postsLinks.find((post) => post.id === postId).visited = true;
+        makeLinkVisited(postId);
       });
 
       setTimeout(updatePosts, 5000);

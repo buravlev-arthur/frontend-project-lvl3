@@ -71,7 +71,7 @@ const render = {
     });
   },
 
-  renderPosts(posts, links, buttonText) {
+  renderPosts(posts, visitedLinks, buttonText) {
     const postsCard = document.querySelector('.posts > .card');
     const postsList = document.querySelector('.posts ul');
 
@@ -83,8 +83,7 @@ const render = {
       const a = document.createElement('a');
       const button = document.createElement('button');
       li.classList.add('list-group-item', 'border-0');
-      const { visited } = links.find((postLink) => postLink.id === id);
-      const linkClass = visited ? 'fw-normal' : 'fw-bold';
+      const linkClass = visitedLinks.includes(id) ? 'fw-normal' : 'fw-bold';
 
       a.classList.add(linkClass);
       a.target = '_blank';
