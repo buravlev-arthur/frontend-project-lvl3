@@ -36,7 +36,8 @@ const watch = (state, translate) => onChange(state, (path, value) => {
   }
 
   if (path === 'view.visitedLinks') {
-    render.setLinkVisited(value);
+    const postId = [...value][value.size - 1];
+    render.setLinkVisited(postId);
   }
 
   if (path === 'view.showUpdatingErrorAlert' && value) {

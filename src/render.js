@@ -83,7 +83,7 @@ const render = {
       const a = document.createElement('a');
       const button = document.createElement('button');
       li.classList.add('list-group-item', 'border-0');
-      const linkClass = visitedLinks.includes(id) ? 'fw-normal' : 'fw-bold';
+      const linkClass = visitedLinks.has(id) ? 'fw-normal' : 'fw-bold';
 
       a.classList.add(linkClass);
       a.target = '_blank';
@@ -103,8 +103,7 @@ const render = {
     });
   },
 
-  setLinkVisited(visitedLinks) {
-    const postId = visitedLinks[visitedLinks.length - 1];
+  setLinkVisited(postId) {
     const link = document.querySelector(`.posts a[data-id="${postId}"]`);
     link.classList.add('fw-normal');
     link.classList.remove('fw-bold');
