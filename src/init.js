@@ -20,7 +20,7 @@ export default () => {
       },
       modalWindowPostId: null,
       showUpdatingErrorAlert: false,
-      visitedLinks: new Set(),
+      visitedLinks: [],
     },
   };
 
@@ -57,11 +57,18 @@ export default () => {
         return proxyURLData.href;
       };
 
+      const makeLinkVisited = (id) => {
+        const isAlreadyVisited = watchedState.view.visitedLinks.includes(id);
+        if (!isAlreadyVisited) {
+          watchedState.view.visitedLinks.push(id);
+        }
+      };
+
       const setEventsForLinks = () => {
         watchedState.posts.forEach(({ id }) => {
           const postLink = document.querySelector(`.posts a[data-id="${id}"]`);
           postLink.addEventListener('click', () => {
-            watchedState.view.visitedLinks.add(id);
+            makeLinkVisited(id);
           });
         });
       };
@@ -153,7 +160,7 @@ export default () => {
       modalWindow.addEventListener('show.bs.modal', (event) => {
         const postId = event.relatedTarget.dataset.id;
         watchedState.view.modalWindowPostId = postId;
-        watchedState.view.visitedLinks.add(postId);
+        makeLinkVisited(postId);
       });
 
       setTimeout(updatePosts, 5000);
