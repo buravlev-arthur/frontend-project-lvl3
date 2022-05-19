@@ -20,7 +20,7 @@ export default () => {
       },
       modalWindowPostId: null,
       showUpdatingErrorAlert: false,
-      visitedLinks: [],
+      visitedLinks: new Set(),
     },
   };
 
@@ -32,6 +32,11 @@ export default () => {
       required: 'urlFieldMessages.shouldNotBeEmpty',
       notOneOf: 'urlFieldMessages.resourceIsExists',
     },
+  });
+
+  axios.interceptors.response.use((res) => res, (err) => {
+    const modifiedError = { isAxiosError: true, ...err };
+    return Promise.reject(modifiedError);
   });
 
   i18next
@@ -52,18 +57,11 @@ export default () => {
         return proxyURLData.href;
       };
 
-      const makeLinkVisited = (id) => {
-        const isAlreadyVisited = watchedState.view.visitedLinks.includes(id);
-        if (!isAlreadyVisited) {
-          watchedState.view.visitedLinks.push(id);
-        }
-      };
-
       const setEventsForLinks = () => {
         watchedState.posts.forEach(({ id }) => {
           const postLink = document.querySelector(`.posts a[data-id="${id}"]`);
           postLink.addEventListener('click', () => {
-            makeLinkVisited(id);
+            watchedState.view.visitedLinks.add(id);
           });
         });
       };
@@ -134,19 +132,20 @@ export default () => {
             setEventsForLinks();
           })
           .catch((err) => {
+            console.log('lalala: ', JSON.stringify(err));
             watchedState.view.form.valid = false;
             watchedState.view.form.processing = false;
 
-            if (err.name === 'ValidationError') {
+            if (err instanceof yup.ValidationError) {
               const [errorTextPath] = err.errors;
               watchedState.view.form.message = errorTextPath;
             }
 
-            if (err.name === 'AxiosError') {
+            if (err.isAxiosError) {
               watchedState.view.form.message = 'urlFieldMessages.networkError';
             }
 
-            if (err.name === 'ParserError') {
+            if (err.isParserError) {
               watchedState.view.form.message = 'urlFieldMessages.invalidResource';
             }
           });
@@ -155,7 +154,7 @@ export default () => {
       modalWindow.addEventListener('show.bs.modal', (event) => {
         const postId = event.relatedTarget.dataset.id;
         watchedState.view.modalWindowPostId = postId;
-        makeLinkVisited(postId);
+        watchedState.view.visitedLinks.add(postId);
       });
 
       setTimeout(updatePosts, 5000);
